@@ -1,53 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>MagMoment AR Frame 78</title>
+  <head>
+    <title>MagMoment AR Frame</title>
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
 
-  <style>
-    body, html { margin: 0; overflow: hidden; background: black; }
-    #ar-container { width: 100vw; height: 100vh; }
-  </style>
-</head>
+    <style>
+      body, html { margin: 0; overflow: hidden; }
+    </style>
+  </head>
 
-<body>
-  <div id="ar-container"></div>
+  <body>
+    <a-scene
+      mindar-image="imageTargetSrc: ./assets/targets.mind"
+      embedded
+      color-space="sRGB"
+      renderer="colorManagement: true"
+      vr-mode-ui="enabled: false">
 
-  <script type="module">
-    import * as THREE from "https://unpkg.com/three@0.154.0/build/three.module.js";
-    import { MindARThree } from "https://raw.githubusercontent.com/hiukim/mind-ar-js/master/dist/mindar-image-three.esm.js";
+      <a-assets>
+        <video id="video" src="./assets/video.mp4" loop="true" playsinline webkit-playsinline muted></video>
+      </a-assets>
 
-    const mindarThree = new MindARThree({
-      container: document.querySelector("#ar-container"),
-      imageTargetSrc: "./assets/targets.mind",
-    });
+      <a-image
+        src="#video"
+        width="1"
+        height="0.56"
+        position="0 0 0"
+        rotation="-90 0 0"
+        mindar-image-target="targetIndex: 0">
+      </a-image>
 
-    const { renderer, scene, camera } = mindarThree;
+    </a-scene>
 
-    // Video setup
-    const video = document.createElement("video");
-    video.src = "./assets/video.mp4";
-    video.loop = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.preload = "auto";
+    <script>
+      const video = document.querySelector("#video");
+      video.play();
+    </script>
 
-    const texture = new THREE.VideoTexture(video);
-    const geometry = new THREE.PlaneGeometry(1, 0.56);
-    const material = new THREE.MeshBasicMaterial({ map: texture });
-    const plane = new THREE.Mesh(geometry, material);
-
-    plane.rotation.x = -Math.PI / 2;
-
-    const anchor = mindarThree.addAnchor(0);
-    anchor.group.add(plane);
-
-    await mindarThree.start();
-    video.play();
-
-    renderer.setAnimationLoop(() => {
-      renderer.render(scene, camera);
-    });
-  </script>
-
-</body>
+  </body>
 </html>
