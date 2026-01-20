@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MagMoment AR Frame</title>
+  <title>MagMoment AR Frame 78</title>
 
   <style>
     body, html { margin: 0; overflow: hidden; background: black; }
@@ -13,8 +13,8 @@
   <div id="ar-container"></div>
 
   <script type="module">
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.module.js";
-    import { MindARThree } from "https://cdn.jsdelivr.net/npm/mind-ar/dist/mindar-image-three.esm.js";
+    import * as THREE from "https://unpkg.com/three@0.154.0/build/three.module.js";
+    import { MindARThree } from "https://raw.githubusercontent.com/hiukim/mind-ar-js/master/dist/mindar-image-three.esm.js";
 
     const mindarThree = new MindARThree({
       container: document.querySelector("#ar-container"),
@@ -30,7 +30,6 @@
     video.muted = true;
     video.playsInline = true;
     video.preload = "auto";
-    video.load();
 
     const texture = new THREE.VideoTexture(video);
     const geometry = new THREE.PlaneGeometry(1, 0.56);
