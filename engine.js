@@ -5,14 +5,28 @@ const STATE = {
 };
 
 let currentState = STATE.LOST;
+let lastSeen = 0;
 
-function setState(newState) {
-  currentState = newState;
+function updateState(detected, confidence) {
+  const now = performance.now();
+
+  if (detected && confidence >= 0.85) {
+    currentState = STATE.ACTIVE;
+    lastSeen = now;
+  } 
+  else if (detected && confidence >= 0.55) {
+    currentState = STATE.LOCKED;
+    lastSeen = now;
+  } 
+  else if (now - lastSeen > 600) {
+    currentState = STATE.LOST;
+  }
+
   return currentState;
 }
 
 window.AR_ENGINE = {
   STATE,
-  setState,
+  updateState,
   getState: () => currentState
 };

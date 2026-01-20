@@ -13,20 +13,13 @@ async function startAR() {
     const detected = data.hasTarget;
     const confidence = data.confidence || 0;
 
-    if (detected && confidence > 0.75) {
-      engine.setState(engine.STATE.ACTIVE);
-    } else if (detected && confidence > 0.4) {
-      engine.setState(engine.STATE.LOCKED);
-    } else {
-      engine.setState(engine.STATE.LOST);
-    }
+    const state = engine.updateState(detected, confidence);
 
-    render(data);
+    render(state, data);
   });
 }
 
-function render(data) {
-  const state = engine.getState();
+function render(state, data) {
 
   if (state === engine.STATE.ACTIVE) {
     video.style.display = "block";
@@ -36,6 +29,7 @@ function render(data) {
   }
 
   if (state === engine.STATE.LOCKED) {
+    video.style.display = "block";
     video.style.opacity = "1";
   }
 
