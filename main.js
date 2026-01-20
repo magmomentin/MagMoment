@@ -69,12 +69,23 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-ui.waitForTap(()=>{
-  arStarted=true;
-  detector.hits=0; pose.last=null; frameLocked=false; lastSeenTime=0;
-  player=new VideoPlayer(auth.videoUrl);
+ui.waitForTap(() => {
+  arStarted = true;
+
+  detector.hits = 0;
+  pose.last = null;
+  frameLocked = false;
+  lastSeenTime = 0;
+  hasEverDetected = false;
+
+  player = new VideoPlayer(auth.videoUrl);
+
+  // attach but KEEP PAUSED
   document.body.appendChild(player.video);
-  player.video.style.display="none";
-  gl=new GLRenderer(canvas,player.video);
+  player.video.style.display = "none";
+
+  gl = new GLRenderer(canvas, player.video);
+
   requestAnimationFrame(loop);
 });
+
