@@ -40,23 +40,23 @@ function loop() {
   const r = detector.detect(cam);
   const now = Date.now();
 
-  if (r) {
-    hasEverDetected = true;
-    frameLocked = true;
-    lastSeenTime = now;
+if (r) {
+  hasEverDetected = true;
+  frameLocked = true;
+  lastSeenTime = now;
 
-    if (!videoAttached) {
-      document.body.appendChild(player.video);
-      player.video.style.display = "none";
-      videoAttached = true;
-    }
+  if (!videoAttached) {
+    player.load(auth.videoUrl);        // 🔑 LOAD NOW
+    document.body.appendChild(player.video);
+    player.video.style.display = "none";
+    videoAttached = true;
+  }
 
-    const b = pose.smoothBox(r);
-    player.play();
-    gl.draw(toCorners(b));
-    ui.found();
-
-  } else if (frameLocked && hasEverDetected && now - lastSeenTime < LOCK_TIMEOUT) {
+  const b = pose.smoothBox(r);
+  player.play();
+  gl.draw(toCorners(b));
+  ui.found();
+} else if (frameLocked && hasEverDetected && now - lastSeenTime < LOCK_TIMEOUT) {
     player.play();
     gl.draw(toCorners(pose.last));
     ui.found();
