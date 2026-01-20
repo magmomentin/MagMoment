@@ -1,0 +1,15 @@
+body, html {
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.loading {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  color: white;
+  font-size: 18px;
+  z-index: 99;
+  font-family: sans-serif;
+}
