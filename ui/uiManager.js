@@ -2,6 +2,7 @@ export class UIManager {
   constructor() {
     this.hint = document.getElementById("hint");
   }
+
   waitForTap(cb) {
     this.hint.innerText = "Tap to start AR";
     const fn = () => {
@@ -11,6 +12,12 @@ export class UIManager {
     };
     this.hint.addEventListener("click", fn);
   }
-  found() { this.hint.innerText = "Hold steady"; }
-  lost() { this.hint.innerText = "Point camera at the frame"; }
+
+  found() {
+    this.hint.innerText = "Hold steady";
+  }
+
+  lost() {
+    this.hint.innerText = "Point camera at the frame";
+  }
 }

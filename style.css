@@ -8,8 +8,7 @@ html, body {
 
 #camera {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
@@ -18,8 +17,7 @@ html, body {
 
 #glcanvas {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
   pointer-events: none;
@@ -29,7 +27,6 @@ html, body {
 #hint {
   position: fixed;
   bottom: 20px;
-  left: 0;
   width: 100%;
   text-align: center;
   color: white;
