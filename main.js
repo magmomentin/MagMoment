@@ -23,21 +23,42 @@ let player,gl;
 
 const toCorners=b=>[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]];
 
-function loop(){
-  if(!arStarted){requestAnimationFrame(loop);return;}
-  const r=detector.detect(cam);
-  const now=Date.now();
-  if(r){
-    frameLocked=true; lastSeenTime=now;
-    const b=pose.smoothBox(r);
-    player.play(); gl.draw(toCorners(b)); ui.found();
-  } else if(frameLocked&&(now-lastSeenTime<LOCK_TIMEOUT)){
-    player.play(); ui.found();
-  } else {
-    frameLocked=false; player.pause(); ui.lost();
+function loop() {
+  if (!arStarted) {
+    requestAnimationFrame(loop);
+    return;
   }
+
+  const r = detector.detect(cam);
+  const now = Date.now();
+
+  if (r) {
+    // Frame is visible NOW
+    frameLocked = true;
+    lastSeenTime = now;
+
+    const b = pose.smoothBox(r);
+    player.play();
+    gl.draw(toCorners(b));
+    ui.found();
+
+  } else if (frameLocked && (now - lastSeenTime < LOCK_TIMEOUT)) {
+    // Grace period — keep last pose
+    player.play();
+    gl.draw(toCorners(pose.last));
+    ui.found();
+
+  } else {
+    // ❌ NO FRAME → HARD STOP
+    frameLocked = false;
+    player.pause();
+    gl.clear();      // 🔑 clear canvas
+    ui.lost();
+  }
+
   requestAnimationFrame(loop);
 }
+
 
 ui.waitForTap(()=>{
   arStarted=true;
