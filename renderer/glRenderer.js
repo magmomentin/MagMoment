@@ -40,4 +40,9 @@ export class GLRenderer {
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,this.video);
     gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   }
+  clear() {
+  const gl = this.gl;
+  gl.clear(gl.COLOR_BUFFER_BIT);
+}
+
 }
