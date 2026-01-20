@@ -17,6 +17,8 @@ g.attachShader(p,c(g.FRAGMENT_SHADER,fs));
 g.linkProgram(p);g.useProgram(p);
 this.p=p;this.b=g.createBuffer();this.t=g.createTexture();
 g.bindTexture(g.TEXTURE_2D,this.t);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MIN_FILTER,g.LINEAR);
 }
 draw(corners) {
