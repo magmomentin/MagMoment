@@ -48,13 +48,26 @@ requestAnimationFrame(loop);
 }
 
 ui.waitForTap(() => {
+  // 🔑 START AR ONLY AFTER TAP
+  arStarted = true;
+
+  // 🔄 RESET STATES
+  detector.hits = 0;
+  pose.last = null;
+  frameLocked = false;
+  lastSeenTime = 0;
+
+  // 🎬 VIDEO SETUP
   player = new VideoPlayer(auth.videoUrl);
 
-  // 🔑 CRITICAL FIX: attach video to DOM (hidden)
+  // REQUIRED FOR MOBILE WEBGL VIDEO
   document.body.appendChild(player.video);
   player.video.style.display = "none";
 
+  // 🎨 WEBGL
   gl = new GLRenderer(canvas, player.video);
+
   requestAnimationFrame(loop);
 });
+
 
