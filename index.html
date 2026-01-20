@@ -1,56 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MagMoment AR</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MagMoment AR</title>
 
-  <!-- Load MindAR UMD (global namespace) -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-three.prod.js"></script>
+    <!-- MindAR + A-Frame -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.prod.js"></script>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 
-  <!-- Load compatible Three.js version -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r123/three.min.js"></script>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./script.js" defer></script>
+  </head>
 
-<style>
-  html, body {
-    position: fixed;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #000;
-  }
+  <body>
+    <div class="loading">Loading AR…</div>
 
-  #container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  video {
-    object-fit: cover !important;
-  }
-
-  canvas {
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-  }
-</style>
-
-</head>
-
-<body>
-  <div id="container"></div>
-
-  <!-- Scripts SHOULD be loaded after library scripts -->
-  <script src="./script.js"></script>
-</body>
-</html>
+    <a-scene
+      mindar-image="imageTargetSrc: ./assets/target.mind;"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: true"
+      embedded
+    >
+      <a-assets>
+        <video
+          id="magVideo"
+          src="./assets/video.mp4"
+          preload="auto"
+          crossorigin="anonymous"
+          loop="true"
+        ></vid
