@@ -23,6 +23,7 @@ e+=Math.abs(d[i]-d[i+4]);
 if (e < 150000) { this.hits = 0; return null; }
 this.hits++;
 if(this.hits<4)return null;
+console.log("✅ FRAME CONFIRMED", e);
 
 const h=vh*0.6,w=h*this.frame.aspect;
 return{x:(vw-w)/2,y:(vh-h)/2,width:w,height:h};
