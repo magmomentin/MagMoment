@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Custom component to control video playback
+  // Custom component: play/pause video when marker is visible
   AFRAME.registerComponent("play-on-target", {
     init: function () {
       const videoEl = document.querySelector("#promo");
