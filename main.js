@@ -34,23 +34,28 @@ function loop(){
   }
 
   const r = detector.detect(cam);
-  const now = Date.now();
-if (r) {
+  if (r) {
+  frameLocked = true;
+  lastSeenTime = now;
+
   const b = pose.smoothBox(r);
-
-  // 🔴 VISUAL DEBUG: screen flash
-  document.body.style.background = "green";
-
   player.play();
   gl.draw(toCorners(b));
   ui.found();
-} else {
-  document.body.style.background = "black";
 
+} else if (frameLocked && (now - lastSeenTime < LOCK_TIMEOUT)) {
+  // grace period
+  player.play();
+  ui.found();
+
+} else {
+  frameLocked = false;
   player.pause();
   ui.lost();
 }
+
 requestAnimationFrame(loop);
+
 }
 
 ui.waitForTap(() => {
