@@ -20,7 +20,7 @@ let e=0;
 for(let i=4;i<d.length-4;i+=4)
 e+=Math.abs(d[i]-d[i+4]);
 
-if(e<350000){this.hits=0;return null;}
+if (e < 150000) { this.hits = 0; return null; }
 this.hits++;
 if(this.hits<4)return null;
 
