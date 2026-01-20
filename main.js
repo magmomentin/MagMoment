@@ -1,84 +1,50 @@
-import{startCamera}from"./camera.js";
-import{resolveToken}from"./security/token.js";
-import{FrameDetector}from"./detector/frameDetector.js";
-import{PoseEstimator}from"./detector/poseEstimator.js";
-import{VideoPlayer}from"./media/videoPlayer.js";
-import{UIManager}from"./ui/uiManager.js";
-import{GLRenderer}from"./renderer/glRenderer.js";
+import { startCamera } from "./camera.js";
+import { resolveToken } from "./security/token.js";
+import { FrameDetector } from "./detector/frameDetector.js";
+import { PoseEstimator } from "./detector/poseEstimator.js";
+import { VideoPlayer } from "./media/videoPlayer.js";
+import { UIManager } from "./ui/uiManager.js";
+import { GLRenderer } from "./renderer/glRenderer.js";
 
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-const ui=new UIManager();
-const auth=await resolveToken();
+let arStarted=false, frameLocked=false, lastSeenTime=0;
+const LOCK_TIMEOUT=800;
 
 const cam=document.getElementById("camera");
 const canvas=document.getElementById("glcanvas");
+const ui=new UIManager();
+const auth=await resolveToken();
 
 await startCamera(cam);
+cam.style.display="block";
 
 const detector=new FrameDetector(auth.frameId);
 const pose=new PoseEstimator();
-
 let player,gl;
 
-const toCorners=b=>[
-[b.x,b.y],[b.x+b.width,b.y],
-[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]
-];
+const toCorners=b=>[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]];
 
 function loop(){
-  if (!arStarted) {
-    requestAnimationFrame(loop);
-    return;
+  if(!arStarted){requestAnimationFrame(loop);return;}
+  const r=detector.detect(cam);
+  const now=Date.now();
+  if(r){
+    frameLocked=true; lastSeenTime=now;
+    const b=pose.smoothBox(r);
+    player.play(); gl.draw(toCorners(b)); ui.found();
+  } else if(frameLocked&&(now-lastSeenTime<LOCK_TIMEOUT)){
+    player.play(); ui.found();
+  } else {
+    frameLocked=false; player.pause(); ui.lost();
   }
-
-  const r = detector.detect(cam);
-  if (r) {
-  frameLocked = true;
-  lastSeenTime = now;
-
-  const b = pose.smoothBox(r);
-  player.play();
-  gl.draw(toCorners(b));
-  ui.found();
-
-} else if (frameLocked && (now - lastSeenTime < LOCK_TIMEOUT)) {
-  // grace period
-  player.play();
-  ui.found();
-
-} else {
-  frameLocked = false;
-  player.pause();
-  ui.lost();
+  requestAnimationFrame(loop);
 }
 
-requestAnimationFrame(loop);
-
-}
-
-ui.waitForTap(() => {
-  // 🔑 START AR ONLY AFTER TAP
-  arStarted = true;
-
-  // 🔄 RESET STATES
-  detector.hits = 0;
-  pose.last = null;
-  frameLocked = false;
-  lastSeenTime = 0;
-
-  // 🎬 VIDEO SETUP
-  player = new VideoPlayer(auth.videoUrl);
-
-  // REQUIRED FOR MOBILE WEBGL VIDEO
+ui.waitForTap(()=>{
+  arStarted=true;
+  detector.hits=0; pose.last=null; frameLocked=false; lastSeenTime=0;
+  player=new VideoPlayer(auth.videoUrl);
   document.body.appendChild(player.video);
-  player.video.style.display = "none";
-
-  // 🎨 WEBGL
-  gl = new GLRenderer(canvas, player.video);
-
+  player.video.style.display="none";
+  gl=new GLRenderer(canvas,player.video);
   requestAnimationFrame(loop);
 });
-
-
