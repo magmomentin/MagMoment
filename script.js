@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
-
-  console.log("MindAR available? →", window.MINDAR);
+  console.log("MINDAR object in window:", window.MINDAR);
 
   const mindarThree = new window.MINDAR.IMAGE.MindARThree({
     container: document.querySelector("#container"),
-    imageTargetSrc: "./targets.mind",
+    imageTargetSrc: "./targets.mind"
   });
 
   const { renderer, scene, camera } = mindarThree;
@@ -20,8 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await mindarThree.start();
 
   renderer.setAnimationLoop(() => {
-    cube.rotation.x += 0.02;
-    cube.rotation.y += 0.03;
+    cube.rotation.y += 0.02;
     renderer.render(scene, camera);
   });
 });
