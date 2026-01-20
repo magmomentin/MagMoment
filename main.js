@@ -20,6 +20,14 @@ let renderer = null;
 
 await startCamera(cam);
 
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
 ui.waitForTap(() => {
   arStarted = true;
   requestAnimationFrame(loop);
@@ -41,7 +49,18 @@ function loop() {
     }
 
     player.play();
-    renderer.draw(pose.smooth(box));
+   const scaleX = canvas.width / cam.videoWidth;
+const scaleY = canvas.height / cam.videoHeight;
+
+const b = pose.smooth(box);
+
+renderer.draw({
+  x: b.x * scaleX,
+  y: b.y * scaleY,
+  width: b.width * scaleX,
+  height: b.height * scaleY
+});
+
 
   } else {
     ui.lost();
