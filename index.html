@@ -2,47 +2,51 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MagMoment AR</title>
+    <title>MindAR Video Marker Demo</title>
 
-    <!-- AFRAME -->
+    <!-- A-Frame + MindAR -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
 
-    <!-- MINDAR (correct UMD build) -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.min.js"></script>
+    <!-- Your custom logic -->
+    <script src="./script.js"></script>
 
-    <link rel="stylesheet" href="./style.css" />
-    <script src="./script.js" defer></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+    </style>
   </head>
-
   <body>
-    <div id="loading">Loading AR...</div>
-
     <a-scene
-      mindar-image="imageTargetSrc: ./assets/target.mind;"
+      mindar-image="imageTargetSrc: ./assets/targets.mind"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: true"
       embedded
     >
-      <a-assets>
+      <!-- Preload assets -->
+      <a-assets timeout="10000">
         <video
-          id="magVideo"
+          id="promo"
           src="./assets/video.mp4"
           preload="auto"
-          loop
+          muted
+          playsinline
           crossorigin="anonymous"
         ></video>
       </a-assets>
 
-      <a-camera></a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-video
-        src="#magVideo"
-        width="1"
-        height="0.56"
-        position="0 0 0"
-        mindar-image-target="targetIndex: 0"
-      ></a-video>
+      <!-- Video on target -->
+      <a-entity mindar-image-target="targetIndex: 0" play-on-target>
+        <a-video
+          src="#promo"
+          width="1"
+          height="0.56"
+          position="0 0 0"
+          rotation="0 0 0"
+          visible="false"
+        ></a-video>
+      </a-entity>
     </a-scene>
   </body>
 </html>
