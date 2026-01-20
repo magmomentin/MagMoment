@@ -69,11 +69,6 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-
-  requestAnimationFrame(loop);
-}
-
-
 ui.waitForTap(()=>{
   arStarted=true;
   detector.hits=0; pose.last=null; frameLocked=false; lastSeenTime=0;
