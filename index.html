@@ -5,28 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MagMoment AR</title>
 
-    <!-- MindAR + A-Frame -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.prod.js"></script>
+    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+
+    <!-- MindAR (CORRECT UMD BUILD — NO MODULES) -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.min.js"></script>
 
     <link rel="stylesheet" href="./style.css" />
     <script src="./script.js" defer></script>
   </head>
 
   <body>
-    <div class="loading">Loading AR…</div>
+    <div id="loading">Loading AR…</div>
 
     <a-scene
       mindar-image="imageTargetSrc: ./assets/target.mind;"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: true"
       embedded
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
     >
       <a-assets>
         <video
           id="magVideo"
           src="./assets/video.mp4"
-          preload="auto"
-          crossorigin="anonymous"
-          loop="true"
-        ></vid
+          p
