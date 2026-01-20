@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
   scene.addEventListener("loaded", () => {
     const mindarSystem = scene.systems["mindar-image-system"];
 
+    
+
     // MindAR emits these events through its system
     mindarSystem.on("targetFound", () => {
       console.log("Target found — playing video");
