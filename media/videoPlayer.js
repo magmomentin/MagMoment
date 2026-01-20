@@ -1,15 +1,19 @@
 export class VideoPlayer {
-  constructor(url) {
+  constructor() {
     this.video = document.createElement("video");
     this.video.crossOrigin = "anonymous";
-    this.video.src = url;
     this.video.loop = true;
     this.video.muted = true;
     this.video.playsInline = true;
     this.video.autoplay = false;
     this.video.preload = "none";
-    this.video.pause();
-    this.video.currentTime = 0;
+  }
+
+  load(url) {
+    if (!this.video.src) {
+      this.video.src = url;     // 🔑 SET ONLY AFTER DETECTION
+      this.video.load();
+    }
   }
 
   play() {
