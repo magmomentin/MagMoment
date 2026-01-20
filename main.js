@@ -6,8 +6,12 @@ import { VideoPlayer } from "./media/videoPlayer.js";
 import { UIManager } from "./ui/uiManager.js";
 import { GLRenderer } from "./renderer/glRenderer.js";
 
+let hasEverDetected = false;
+
+
 let arStarted=false, frameLocked=false, lastSeenTime=0;
 const LOCK_TIMEOUT=800;
+
 
 const cam=document.getElementById("camera");
 const canvas=document.getElementById("glcanvas");
@@ -33,7 +37,8 @@ function loop() {
   const now = Date.now();
 
   if (r) {
-    // Frame is visible NOW
+    // ✅ FRAME IS CURRENTLY VISIBLE
+    hasEverDetected = true;
     frameLocked = true;
     lastSeenTime = now;
 
@@ -42,19 +47,28 @@ function loop() {
     gl.draw(toCorners(b));
     ui.found();
 
-  } else if (frameLocked && (now - lastSeenTime < LOCK_TIMEOUT)) {
-    // Grace period — keep last pose
+  } else if (
+    frameLocked &&
+    hasEverDetected &&
+    now - lastSeenTime < LOCK_TIMEOUT
+  ) {
+    // 🟡 GRACE PERIOD
     player.play();
     gl.draw(toCorners(pose.last));
     ui.found();
 
   } else {
-    // ❌ NO FRAME → HARD STOP
+    // ❌ NO FRAME — HARD STOP
     frameLocked = false;
-    player.pause();
-    gl.clear();      // 🔑 clear canvas
+
+    player.pause();        // 🔑 stop video
+    gl.clear();            // 🔑 remove texture
     ui.lost();
   }
+
+  requestAnimationFrame(loop);
+}
+
 
   requestAnimationFrame(loop);
 }
