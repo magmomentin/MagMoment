@@ -81,7 +81,7 @@ ui.waitForTap(() => {
   hasEverDetected = false;
   videoAttached = false;
 
-  player = new VideoPlayer(auth.videoUrl);
+  player = new VideoPlayer();
   gl = new GLRenderer(canvas, player.video);
 
   requestAnimationFrame(loop);
