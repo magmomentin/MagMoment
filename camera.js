@@ -1,9 +1,4 @@
-export async function startCamera(videoEl) {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "environment" },
-    audio: false
-  });
-
-  videoEl.srcObject = stream;
-  await videoEl.play();
+export async function startCamera(video){
+ const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});
+ video.srcObject = stream; await video.play();
 }

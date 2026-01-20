@@ -1,13 +1,7 @@
-export function setupRenderer(canvas, videoEl) {
-  const ctx = canvas.getContext("2d");
-
-  function resize() {
-    canvas.width = videoEl.videoWidth;
-    canvas.height = videoEl.videoHeight;
-  }
-
-  videoEl.addEventListener("loadedmetadata", resize);
-  window.addEventListener("resize", resize);
-
-  return ctx;
+export function setupRenderer(canvas, video){
+ const ctx = canvas.getContext("2d");
+ function resize(){ if(!video.videoWidth) return;
+  canvas.width=video.videoWidth; canvas.height=video.videoHeight;}
+ video.addEventListener("loadedmetadata",resize); window.addEventListener("resize",resize);
+ return ctx;
 }
