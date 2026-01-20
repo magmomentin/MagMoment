@@ -3,31 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MagMoment.in</title>
+    <title>MagMoment AR</title>
 
-    <!-- A-Frame -->
+    <!-- A-Frame library -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 
-    <!-- MindAR (CORRECT UMD BUILD — NO MODULES) -->
+    <!-- MindAR JS (UMD build, works with A-Frame) -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.min.js"></script>
 
+    <!-- Local CSS & JS -->
     <link rel="stylesheet" href="./style.css" />
     <script src="./script.js" defer></script>
   </head>
-
   <body>
-    <div id="loading">Loading AR…</div>
+    <div id="loading">Loading AR...</div>
 
     <a-scene
       mindar-image="imageTargetSrc: ./assets/target.mind;"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: true"
       embedded
-      color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights"
     >
       <a-assets>
         <video
           id="magVideo"
           src="./assets/video.mp4"
-          p
+          preload="auto"
+          loop="true"
+          crossorigin="anonymous"
+        ></video>
+      </a-assets>
+
+      <a-camera position="0 0 0"></a-camera>
+
+      <a-video
+        src="#magVideo"
+        width="1"
+        height="0.56"
+        position="0 0 0"
+        mindar-image-target="targetIndex: 0"
+      ></a-video>
+    </a-scene>
+  </body>
+</html>
