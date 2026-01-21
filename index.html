@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>MagMoment India</title>
+  <title>MagMoment AR</title>
 
   <!-- Core libs -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.2/build/three.min.js"></script>
@@ -20,18 +20,13 @@
       font-family: system-ui, sans-serif;
     }
 
-    /* AR canvas hidden until camera is live */
+    /* IMPORTANT: do NOT hide or fade the canvas */
     canvas {
       position: fixed !important;
       inset: 0;
       width: 100vw !important;
       height: 100vh !important;
       object-fit: cover;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    canvas.active {
-      opacity: 1;
     }
 
     #start {
@@ -80,7 +75,7 @@
       transition: opacity 0.35s ease;
     }
 
-    /* Keep video alive for mobile decoding */
+    /* Keep video alive for mobile */
     #video {
       position: fixed;
       width: 1px;
@@ -95,12 +90,10 @@
   <div id="start">Tap to start AR</div>
   <div id="status">STATUS: Ready</div>
 
-  <!-- Shared video element -->
   <video id="video" muted playsinline loop preload="auto">
     <source src="assets/demo.mp4" type="video/mp4">
   </video>
 
-  <!-- Stage-2 fallback -->
   <div id="fallback">
     <video id="fallbackVideo" muted playsinline loop></video>
   </div>
