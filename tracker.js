@@ -2,15 +2,16 @@ const tap = document.getElementById("tap");
 const video = document.getElementById("arVideo");
 
 tap.addEventListener("click", async () => {
-  tap.innerText = "Starting camera…";
+  tap.innerText = "Starting…";
 
   try {
-    // 🔒 Force camera permission (mobile requirement)
+    // 1️⃣ Camera permission
     await navigator.mediaDevices.getUserMedia({ video: true });
 
-    tap.innerText = "Loading AR…";
+    // 2️⃣ UNLOCK VIDEO PLAYBACK (CRITICAL)
+    await video.play(); // must happen while video is visible
 
-    // Init MindAR
+    // 3️⃣ Init MindAR
     const mindar = new window.MINDAR.IMAGE.MindARThree({
       container: document.body,
       imageTargetSrc: "assets/target.mind"
@@ -18,22 +19,18 @@ tap.addEventListener("click", async () => {
 
     const { renderer, scene, camera } = mindar;
 
-    // Anchor for image target index 0
+    // Anchor
     const anchor = mindar.addAnchor(0);
 
     // Video texture
-    const videoTexture = new THREE.VideoTexture(video);
-    videoTexture.minFilter = THREE.LinearFilter;
-    videoTexture.magFilter = THREE.LinearFilter;
+    const texture = new THREE.VideoTexture(video);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
 
-    // 🔧 FRAME SIZE (MATCH YOUR PRINT RATIO)
-    const FRAME_WIDTH = 1;
-    const FRAME_HEIGHT = 1.4; // portrait example
-
-    const geometry = new THREE.PlaneGeometry(FRAME_WIDTH, FRAME_HEIGHT);
+    // Frame size (adjust later)
+    const geometry = new THREE.PlaneGeometry(1, 1.4);
     const material = new THREE.MeshBasicMaterial({
-      map: videoTexture,
-      transparent: true
+      map: texture
     });
 
     const plane = new THREE.Mesh(geometry, material);
@@ -45,25 +42,18 @@ tap.addEventListener("click", async () => {
       renderer.render(scene, camera);
     });
 
-    // When frame appears
-    anchor.onTargetFound = () => {
-      video.play().catch(() => {
-        document.body.addEventListener(
-          "click",
-          () => video.play(),
-          { once: true }
-        );
-      });
-    };
-
-    // When frame disappears
     anchor.onTargetLost = () => {
       video.pause();
     };
 
-    tap.remove(); // remove overlay
-  } catch (err) {
-    console.error(err);
-    tap.innerText = "Camera permission denied";
+    anchor.onTargetFound = () => {
+      video.play();
+    };
+
+    tap.remove();
+
+  } catch (e) {
+    console.error(e);
+    tap.innerText = "Permission denied";
   }
 }, { once: true });
