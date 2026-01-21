@@ -1,62 +1,48 @@
-import { MindARImage } from "https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image.prod.js";
+const start = document.getElementById("start");
+const video = document.getElementById("video");
 
-const video = document.getElementById("arVideo");
+start.onclick = async () => {
+  start.remove();
 
-const STATE = {
-  ACTIVE: "active",
-  LOCKED: "locked",
-  LOST: "lost"
-};
+  // Unlock video playback (NOT camera)
+  await video.play();
 
-let currentState = STATE.LOST;
-let lastSeen = 0;
+  // MindAR MUST be accessed via window
+  const mindar = new window.MINDAR.IMAGE.MindARThree({
+    container: document.body,
+    imageTargetSrc: "assets/target.mind"
+  });
 
-function updateState(detected, confidence) {
-  const now = performance.now();
+  const { renderer, scene, camera } = mindar;
 
-  if (detected && confidence >= 0.85) {
-    currentState = STATE.ACTIVE;
-    lastSeen = now;
-  } else if (detected && confidence >= 0.55) {
-    currentState = STATE.LOCKED;
-    lastSeen = now;
-  } else if (now - lastSeen > 600) {
-    currentState = STATE.LOST;
-  }
+  const anchor = mindar.addAnchor(0);
 
-  return currentState;
-}
+  const texture = new THREE.VideoTexture(video);
 
-const mindar = new MindARImage.MindARController({
-  container: document.body,
-  imageTargetSrc: "assets/target.mind"
-});
+  const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1.5),
+    new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.DoubleSide
+    })
+  );
 
-async function startAR() {
+  plane.visible = false;
+  anchor.group.add(plane);
+
+  anchor.onTargetFound = () => {
+    plane.visible = true;
+  };
+
+  anchor.onTargetLost = () => {
+    plane.visible = false;
+  };
+
+  // 🔑 CAMERA OPENS HERE
   await mindar.start();
 
-  mindar.on("update", (data) => {
-    const detected = data.hasTarget;
-    const confidence = data.confidence || 0;
-
-    const state = updateState(detected, confidence);
-
-    if (state === STATE.ACTIVE) {
-      video.style.display = "block";
-      video.style.opacity = "1";
-      video.style.transform = data.cssTransform || "none";
-      video.play();
-    }
-
-    if (state === STATE.LOCKED) {
-      video.style.display = "block";
-      video.style.opacity = "1";
-    }
-
-    if (state === STATE.LOST) {
-      video.style.opacity = "0";
-    }
+  renderer.setAnimationLoop(() => {
+    texture.needsUpdate = true;
+    renderer.render(scene, camera);
   });
-}
-
-startAR();
+};
