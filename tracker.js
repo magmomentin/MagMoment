@@ -1,40 +1,31 @@
-const video = document.getElementById("arVideo");
+const tap = document.getElementById("tap");
 
-/* Init MindAR */
-const mindar = new window.MINDAR.IMAGE.MindARThree({
-  container: document.body,
-  imageTargetSrc: "assets/target.mind"
-});
+tap.addEventListener("click", async () => {
+  tap.innerText = "Starting camera…";
 
-const { renderer, scene, camera } = mindar;
+  try {
+    // 🔒 FORCE camera permission (mobile requirement)
+    await navigator.mediaDevices.getUserMedia({ video: true });
 
-/* Anchor for target 0 */
-const anchor = mindar.addAnchor(0);
+    tap.innerText = "Camera granted. Starting AR…";
 
-/* Video texture */
-const texture = new THREE.VideoTexture(video);
-
-/* Adjust to your frame ratio */
-const geometry = new THREE.PlaneGeometry(1, 1.4);
-const material = new THREE.MeshBasicMaterial({ map: texture });
-const plane = new THREE.Mesh(geometry, material);
-
-anchor.group.add(plane);
-
-(async () => {
-  await mindar.start();
-
-  renderer.setAnimationLoop(() => {
-    renderer.render(scene, camera);
-  });
-
-  anchor.onTargetFound = () => {
-    video.play().catch(() => {
-      document.body.addEventListener("click", () => video.play(), { once: true });
+    // Init MindAR AFTER permission
+    const mindar = new window.MINDAR.IMAGE.MindARThree({
+      container: document.body,
+      imageTargetSrc: "assets/target.mind"
     });
-  };
 
-  anchor.onTargetLost = () => {
-    video.pause();
-  };
-})();
+    const { renderer, scene, camera } = mindar;
+
+    await mindar.start();
+
+    renderer.setAnimationLoop(() => {
+      renderer.render(scene, camera);
+    });
+
+    tap.remove(); // success UI removed
+  } catch (err) {
+    console.error(err);
+    tap.innerText = "Camera permission denied";
+  }
+}, { once: true });
