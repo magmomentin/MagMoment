@@ -5,11 +5,12 @@ const video   = document.getElementById("video");
 const fbWrap  = document.getElementById("fallback");
 const fbVideo = document.getElementById("fallbackVideo");
 
-/* CONFIG */
-const FRAME_ASPECT = 2 / 3;
+/* ---------- CONFIG ---------- */
+const FRAME_ASPECT = 2 / 3;   // A5 portrait
 const FRAME_HEIGHT = 1.0;
 const FADE_SPEED   = 0.08;
-const FAIL_TIMEOUT = 2000;
+const FAIL_TIMEOUT = 1800;
+/* ---------------------------- */
 
 let stage3OK = false;
 let targetVisible = false;
@@ -19,14 +20,14 @@ start.addEventListener("click", async () => {
     start.style.display = "none";
     status.textContent = "STATUS: Starting AR";
 
-    // 🔑 Unlock video playback (do NOT touch camera)
+    /* 🔑 Unlock video (camera is NOT touched here) */
     await video.play();
 
-    // Prepare fallback video
+    /* Prepare fallback video */
     fbVideo.src = video.currentSrc || video.src;
     fbVideo.play().catch(() => {});
 
-    // Init MindAR INSIDE user gesture
+    /* Init MindAR inside user gesture */
     const mindar = new window.MINDAR.IMAGE.MindARThree({
       container: document.body,
       imageTargetSrc: "assets/target.mind"
@@ -34,6 +35,7 @@ start.addEventListener("click", async () => {
 
     const { renderer, scene, camera } = mindar;
 
+    /* Fullscreen resize */
     const resize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -42,13 +44,15 @@ start.addEventListener("click", async () => {
     resize();
     window.addEventListener("resize", resize);
 
+    /* Anchor */
     const anchor = mindar.addAnchor(0);
 
+    /* Video texture */
     const texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
 
-    // Cover logic
+    /* Cover logic (no black bars) */
     const applyCover = () => {
       const vAspect = video.videoWidth / video.videoHeight || (9 / 16);
       if (vAspect > FRAME_ASPECT) {
@@ -64,6 +68,7 @@ start.addEventListener("click", async () => {
     if (video.readyState >= 2) applyCover();
     else video.onloadedmetadata = applyCover;
 
+    /* Frame-locked plane */
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(FRAME_HEIGHT * FRAME_ASPECT, FRAME_HEIGHT),
       new THREE.MeshBasicMaterial({
@@ -87,16 +92,16 @@ start.addEventListener("click", async () => {
       targetVisible = false;
     };
 
-    // 🔑 Start MindAR (camera opens here)
+    /* Start MindAR (camera opens HERE) */
     await mindar.start();
 
-    // Reveal camera canvas AFTER stream is live
+    /* Show camera only when stream is live */
     const canvas = document.querySelector("canvas");
     if (canvas) canvas.classList.add("active");
 
     status.textContent = "STATUS: Scanning";
 
-    // Stage-3 health check
+    /* Stage-3 health check */
     const t0 = video.currentTime;
     setTimeout(() => {
       if (video.currentTime > t0 + 0.05) {
@@ -108,6 +113,7 @@ start.addEventListener("click", async () => {
       }
     }, FAIL_TIMEOUT);
 
+    /* Render loop */
     renderer.setAnimationLoop(() => {
       texture.needsUpdate = true;
 
@@ -121,8 +127,8 @@ start.addEventListener("click", async () => {
       renderer.render(scene, camera);
     });
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     status.textContent = "STATUS: Permission denied";
     start.style.display = "flex";
   }
