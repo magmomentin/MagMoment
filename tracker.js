@@ -27,32 +27,21 @@ function updateState(detected, confidence) {
   return currentState;
 }
 
-// ✅ THIS IS THE CORRECT CONSTRUCTOR
-const mindar = new MindARImage.MindARController({
+// ✅ CORRECT ESM CONSTRUCTOR
+const mindar = new MindARImage({
   container: document.body,
   imageTargetSrc: "assets/target.mind"
 });
 
 await mindar.start();
 
-mindar.on("update", (data) => {
-  const detected = data.hasTarget;
-  const confidence = data.confidence || 0;
+// listen to image tracking
+mindar.addEventListener("targetFound", () => {
+  video.style.display = "block";
+  video.style.opacity = "1";
+  video.play();
+});
 
-  const state = updateState(detected, confidence);
-
-  if (state === STATE.ACTIVE) {
-    video.style.display = "block";
-    video.style.opacity = "1";
-    video.style.transform = data.cssTransform || "none";
-    video.play();
-  }
-
-  if (state === STATE.LOCKED) {
-    video.style.opacity = "1";
-  }
-
-  if (state === STATE.LOST) {
-    video.style.opacity = "0";
-  }
+mindar.addEventListener("targetLost", () => {
+  video.style.opacity = "0";
 });
