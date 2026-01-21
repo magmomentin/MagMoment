@@ -2,28 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>MagMoment AR</title>
 
-  <!-- ✅ ONLY MindAR script allowed -->
+  <!-- MindAR GLOBAL build (ONLY THIS) -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image.prod.js"></script>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- Camera feed -->
   <video id="camera" autoplay playsinline muted></video>
 
-<video
-  id="arVideo"
-  muted
-  playsinline
-  autoplay
-  loop
-  preload="auto"
->
-  <source src="assets/demo.mp4" type="video/mp4">
-</video>
+  <!-- AR Video -->
+  <video
+    id="arVideo"
+    muted
+    playsinline
+    autoplay
+    loop
+    preload="auto"
+  >
+    <source src="assets/demo.mp4" type="video/mp4">
+  </video>
 
-
+  <!-- Your logic -->
   <script src="tracker.js"></script>
+
 </body>
 </html>
