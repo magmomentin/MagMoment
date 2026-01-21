@@ -60,6 +60,19 @@ start.addEventListener("click", async () => {
     // 8️⃣ Start AR
     await mindar.start();
 
+    const resize = () => {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  renderer.setSize(width, height);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+};
+
+resize();
+window.addEventListener("resize", resize);
+
+
     renderer.setAnimationLoop(() => {
       texture.needsUpdate = true; // REQUIRED for mobile
       renderer.render(scene, camera);
