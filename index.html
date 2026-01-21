@@ -25,16 +25,15 @@
       font-family: sans-serif;
     }
 
-    /* MindAR injects a canvas – make it fullscreen */
-canvas {
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100vw !important;
-  height: 100vh !important;
-  object-fit: cover;
-}
-
+    /* Force camera to fullscreen */
+    canvas {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      object-fit: cover;
+    }
 
     #start {
       position: fixed;
@@ -55,12 +54,12 @@ canvas {
       left: 10px;
       padding: 6px 10px;
       background: rgba(0,0,0,0.7);
-      color: #0f0;
+      color: #00ff00;
       font-size: 14px;
       z-index: 5;
     }
 
-    /* Video must stay alive (1px trick) */
+    /* Keep video alive for mobile */
     #video {
       position: fixed;
       width: 1px;
