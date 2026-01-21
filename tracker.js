@@ -1,5 +1,14 @@
 const video = document.getElementById("arVideo");
 
+/* --- Hybrid State --- */
+const STATE = {
+  ACTIVE: "active",
+  LOST: "lost"
+};
+
+let currentState = STATE.LOST;
+
+/* --- Init MindAR --- */
 const mindar = new window.MINDAR.IMAGE.MindARController({
   container: document.body,
   imageTargetSrc: "assets/target.mind"
@@ -8,12 +17,31 @@ const mindar = new window.MINDAR.IMAGE.MindARController({
 (async () => {
   await mindar.start();
 
+  /* When frame is found */
   mindar.on("targetFound", () => {
-    video.style.display = "block";
-    video.play();
+    if (currentState === STATE.ACTIVE) return;
+    currentState = STATE.ACTIVE;
+
+    // Force playback (mobile safe)
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        document.body.addEventListener(
+          "click",
+          () => video.play(),
+          { once: true }
+        );
+      });
+    }
+
+    video.classList.add("playing");
   });
 
+  /* When frame is lost */
   mindar.on("targetLost", () => {
-    video.style.display = "none";
+    currentState = STATE.LOST;
+
+    video.classList.remove("playing");
+    video.pause();
   });
 })();
