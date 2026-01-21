@@ -8,19 +8,31 @@
   />
   <title>MagMoment AR</title>
 
-  <!-- Three.js (required first) -->
+  <!-- Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.2/build/three.min.js"></script>
 
-  <!-- MindAR (last stable global build) -->
+  <!-- MindAR (stable global build) -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
 
   <style>
     html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       background: black;
       font-family: sans-serif;
+    }
+
+    /* MindAR injects a canvas – make it fullscreen */
+    canvas {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
     }
 
     #start {
@@ -36,7 +48,18 @@
       cursor: pointer;
     }
 
-    /* IMPORTANT: video must stay alive (not display:none) */
+    #status {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      padding: 6px 10px;
+      background: rgba(0,0,0,0.7);
+      color: #0f0;
+      font-size: 14px;
+      z-index: 5;
+    }
+
+    /* Video must stay alive (1px trick) */
     #video {
       position: fixed;
       width: 1px;
@@ -48,10 +71,9 @@
 </head>
 <body>
 
-  <!-- Required user gesture -->
   <div id="start">Tap / Click to start AR</div>
+  <div id="status">STATUS: Waiting</div>
 
-  <!-- Video kept alive for mobile -->
   <video
     id="video"
     muted
