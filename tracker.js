@@ -1,5 +1,3 @@
-import { MindARImage } from "https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image.prod.js";
-
 const video = document.getElementById("arVideo");
 
 const STATE = {
@@ -14,10 +12,10 @@ let lastSeen = 0;
 function updateState(detected, confidence) {
   const now = performance.now();
 
-  if (detected && confidence >= 0.85) {
+  if (detected && confidence > 0.85) {
     currentState = STATE.ACTIVE;
     lastSeen = now;
-  } else if (detected && confidence >= 0.55) {
+  } else if (detected && confidence > 0.55) {
     currentState = STATE.LOCKED;
     lastSeen = now;
   } else if (now - lastSeen > 600) {
@@ -27,12 +25,12 @@ function updateState(detected, confidence) {
   return currentState;
 }
 
-const mindar = new MindARImage.MindARController({
+const mindar = new window.MINDAR.IMAGE.MindARController({
   container: document.body,
   imageTargetSrc: "assets/target.mind"
 });
 
-async function startAR() {
+(async () => {
   await mindar.start();
 
   mindar.on("update", (data) => {
@@ -49,7 +47,6 @@ async function startAR() {
     }
 
     if (state === STATE.LOCKED) {
-      video.style.display = "block";
       video.style.opacity = "1";
     }
 
@@ -57,6 +54,4 @@ async function startAR() {
       video.style.opacity = "0";
     }
   });
-}
-
-startAR();
+})();
