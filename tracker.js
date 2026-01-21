@@ -1,77 +1,63 @@
-const tap = document.getElementById("tap");
-const status = document.getElementById("status");
+const start = document.getElementById("start");
+const video = document.getElementById("video");
 
-tap.addEventListener("click", async () => {
+start.addEventListener("click", async () => {
   try {
-    status.innerText = "STATUS: requesting camera";
+    /* 1️⃣ Unlock camera (mobile requirement) */
     await navigator.mediaDevices.getUserMedia({ video: true });
 
-    // Create video element (VISIBLE 1px)
-    const video = document.createElement("video");
-    video.src = "assets/demo.mp4";
-    video.muted = true;
-    video.playsInline = true;
-    video.loop = true;
+    /* 2️⃣ Unlock video playback ONCE */
+    await video.play(); // never pause later
 
-    video.style.position = "fixed";
-    video.style.width = "1px";
-    video.style.height = "1px";
-    video.style.opacity = "0.01";
-    document.body.appendChild(video);
-
-    // HARD VIDEO EVENTS
-    video.onloadeddata = () => {
-      console.log("VIDEO loadeddata");
-      status.innerText = "STATUS: video loaded";
-    };
-
-    video.onplaying = () => {
-      console.log("VIDEO playing");
-      status.innerText = "STATUS: video playing";
-    };
-
-    video.ontimeupdate = () => {
-      console.log("VIDEO time:", video.currentTime.toFixed(2));
-    };
-
-    await video.play(); // unlock playback
-
-    // Init MindAR
+    /* 3️⃣ Init MindAR */
     const mindar = new window.MINDAR.IMAGE.MindARThree({
       container: document.body,
       imageTargetSrc: "assets/target.mind"
     });
 
     const { renderer, scene, camera } = mindar;
+
+    /* 4️⃣ Create anchor for target index 0 */
     const anchor = mindar.addAnchor(0);
 
+    /* 5️⃣ Video texture */
     const texture = new THREE.VideoTexture(video);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+
+    /* 6️⃣ Plane locked inside the frame */
     const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(1, 1.4),
-      new THREE.MeshBasicMaterial({ map: texture })
+      new THREE.PlaneGeometry(1, 1.4), // adjust to your frame ratio
+      new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.DoubleSide,
+        depthTest: false
+      })
     );
+
     plane.visible = false;
     anchor.group.add(plane);
 
+    /* 7️⃣ Target visibility logic */
     anchor.onTargetFound = () => {
-      status.innerText = "STATUS: TARGET FOUND";
       plane.visible = true;
     };
 
     anchor.onTargetLost = () => {
-      status.innerText = "STATUS: TARGET LOST";
       plane.visible = false;
     };
 
+    /* 8️⃣ Start AR */
     await mindar.start();
 
     renderer.setAnimationLoop(() => {
+      texture.needsUpdate = true; // required for Safari
       renderer.render(scene, camera);
     });
 
-    tap.remove();
-  } catch (e) {
-    console.error(e);
-    status.innerText = "STATUS: PERMISSION DENIED";
+    start.remove(); // remove UI
+  } catch (err) {
+    console.error(err);
+    start.innerText = "Camera / video permission denied";
   }
 }, { once: true });
