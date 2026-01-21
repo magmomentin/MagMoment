@@ -6,12 +6,12 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, user-scalable=no"
   />
-  <title>MagMoment.in</title>
+  <title>MagMoment AR – Debug</title>
 
   <!-- Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.2/build/three.min.js"></script>
 
-  <!-- MindAR (last stable global) -->
+  <!-- MindAR (stable global) -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
 
   <style>
@@ -20,6 +20,8 @@
       padding: 0;
       overflow: hidden;
       background: black;
+      color: white;
+      font-family: sans-serif;
     }
 
     #tap {
@@ -28,38 +30,26 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
       font-size: 18px;
       background: black;
       z-index: 10;
     }
 
-    /* IMPORTANT: video must NOT be display:none */
-    #arVideo {
+    #status {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 1px;
-      height: 1px;
-      opacity: 0.01;
-      pointer-events: none;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 6px 10px;
+      font-size: 14px;
+      z-index: 5;
     }
   </style>
 </head>
 <body>
 
   <div id="tap">Tap to start AR</div>
-
-  <!-- MUST BE VISIBLE (even 1px) -->
-  <video
-    id="arVideo"
-    muted
-    playsinline
-    loop
-    preload="auto"
-  >
-    <source src="assets/demo.mp4" type="video/mp4">
-  </video>
+  <div id="status">STATUS: Waiting</div>
 
   <script src="tracker.js"></script>
 </body>
