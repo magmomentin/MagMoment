@@ -1,4 +1,4 @@
-import * as MINDAR from "https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image.prod.js";
+import { MindARImage } from "https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image.esm.js";
 
 const video = document.getElementById("arVideo");
 
@@ -27,37 +27,32 @@ function updateState(detected, confidence) {
   return currentState;
 }
 
-// ✅ THIS is the correct constructor path
-const mindar = new MINDAR.MindARImage.MindARController({
+// ✅ THIS IS THE CORRECT CONSTRUCTOR
+const mindar = new MindARImage.MindARController({
   container: document.body,
   imageTargetSrc: "assets/target.mind"
 });
 
-async function startAR() {
-  await mindar.start();
+await mindar.start();
 
-  mindar.on("update", (data) => {
-    const detected = data.hasTarget;
-    const confidence = data.confidence || 0;
+mindar.on("update", (data) => {
+  const detected = data.hasTarget;
+  const confidence = data.confidence || 0;
 
-    const state = updateState(detected, confidence);
+  const state = updateState(detected, confidence);
 
-    if (state === STATE.ACTIVE) {
-      video.style.display = "block";
-      video.style.opacity = "1";
-      video.style.transform = data.cssTransform || "none";
-      video.play();
-    }
+  if (state === STATE.ACTIVE) {
+    video.style.display = "block";
+    video.style.opacity = "1";
+    video.style.transform = data.cssTransform || "none";
+    video.play();
+  }
 
-    if (state === STATE.LOCKED) {
-      video.style.display = "block";
-      video.style.opacity = "1";
-    }
+  if (state === STATE.LOCKED) {
+    video.style.opacity = "1";
+  }
 
-    if (state === STATE.LOST) {
-      video.style.opacity = "0";
-    }
-  });
-}
-
-startAR();
+  if (state === STATE.LOST) {
+    video.style.opacity = "0";
+  }
+});
