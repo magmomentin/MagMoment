@@ -4,7 +4,7 @@ tap.addEventListener("click", async () => {
   tap.innerText = "Starting camera…";
 
   try {
-    // 🔒 FORCE camera permission (mobile requirement)
+    // 🔒 Force mobile camera permission
     await navigator.mediaDevices.getUserMedia({ video: true });
 
     tap.innerText = "Camera granted. Starting AR…";
@@ -23,7 +23,7 @@ tap.addEventListener("click", async () => {
       renderer.render(scene, camera);
     });
 
-    tap.remove(); // success UI removed
+    tap.remove(); // success
   } catch (err) {
     console.error(err);
     tap.innerText = "Camera permission denied";
