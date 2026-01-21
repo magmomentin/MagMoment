@@ -4,16 +4,18 @@ const video = document.getElementById("video");
 start.onclick = async () => {
   start.remove();
 
-  // Unlock video playback (NOT camera)
+  // Unlock video playback
   await video.play();
 
-  // MindAR MUST be accessed via window
   const mindar = new window.MINDAR.IMAGE.MindARThree({
     container: document.body,
     imageTargetSrc: "assets/target.mind"
   });
 
   const { renderer, scene, camera } = mindar;
+
+  // 🔑 THIS LINE FIXES THE BLACK BACKGROUND
+  scene.add(mindar.cameraGroup);
 
   const anchor = mindar.addAnchor(0);
 
@@ -23,7 +25,8 @@ start.onclick = async () => {
     new THREE.PlaneGeometry(1, 1.5),
     new THREE.MeshBasicMaterial({
       map: texture,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
+      transparent: true
     })
   );
 
@@ -38,7 +41,6 @@ start.onclick = async () => {
     plane.visible = false;
   };
 
-  // 🔑 CAMERA OPENS HERE
   await mindar.start();
 
   renderer.setAnimationLoop(() => {
