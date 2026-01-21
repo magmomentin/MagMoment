@@ -2,7 +2,6 @@ const start = document.getElementById("start");
 const status = document.getElementById("status");
 const video = document.getElementById("video");
 
-
 start.addEventListener("click", async () => {
   try {
     status.innerText = "STATUS: Requesting camera";
@@ -22,11 +21,18 @@ start.addEventListener("click", async () => {
 
     const { renderer, scene, camera } = mindar;
 
-    // Ensure renderer fills screen
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    // Fullscreen renderer
+    const resize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+    resize();
+    window.addEventListener("resize", resize);
 
-    // 4️⃣ Anchor
+    // 4️⃣ Anchor for target index 0
     const anchor = mindar.addAnchor(0);
 
     // 5️⃣ Video texture
@@ -34,9 +40,14 @@ start.addEventListener("click", async () => {
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
 
-    // 6️⃣ Plane locked to frame
+    // 🔑 IMPORTANT: MATCH VIDEO ASPECT (portrait 9:16)
+    const VIDEO_ASPECT = 9 / 16; // width / height
+
+    const PLANE_HEIGHT = 2.5;          // controls how big it appears
+    const PLANE_WIDTH = PLANE_HEIGHT * VIDEO_ASPECT;
+
     const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(1, 1.4), // adjust to your frame ratio
+      new THREE.PlaneGeometry(PLANE_WIDTH, PLANE_HEIGHT),
       new THREE.MeshBasicMaterial({
         map: texture,
         side: THREE.DoubleSide,
@@ -45,9 +56,10 @@ start.addEventListener("click", async () => {
     );
 
     plane.visible = false;
+    plane.position.set(0, 0, 0.01); // slight forward push
     anchor.group.add(plane);
 
-    // 7️⃣ Tracking callbacks
+    // 6️⃣ Tracking callbacks
     anchor.onTargetFound = () => {
       status.innerText = "STATUS: TARGET FOUND – VIDEO PLAYING";
       plane.visible = true;
@@ -58,21 +70,8 @@ start.addEventListener("click", async () => {
       plane.visible = false;
     };
 
-    // 8️⃣ Start AR
+    // 7️⃣ Start AR
     await mindar.start();
-
-    const resize = () => {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-
-  renderer.setSize(width, height);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-};
-
-resize();
-window.addEventListener("resize", resize);
-
 
     renderer.setAnimationLoop(() => {
       texture.needsUpdate = true; // REQUIRED for mobile
