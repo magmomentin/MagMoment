@@ -2,6 +2,7 @@ const start = document.getElementById("start");
 const status = document.getElementById("status");
 const video = document.getElementById("video");
 
+
 start.addEventListener("click", async () => {
   try {
     status.innerText = "STATUS: Requesting camera";
