@@ -2,26 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, user-scalable=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hybrid AR Engine</title>
-
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <!-- Camera feed (MindAR will attach stream internally) -->
   <video id="camera" autoplay playsinline muted></video>
 
-  <!-- AR video overlay -->
   <video id="arVideo" muted playsinline loop preload="auto">
     <source src="assets/demo.mp4" type="video/mp4" />
   </video>
 
-  <!-- IMPORTANT: tracker.js must be a module -->
+  <!-- ONLY THIS SCRIPT -->
   <script type="module" src="tracker.js"></script>
 
 </body>
