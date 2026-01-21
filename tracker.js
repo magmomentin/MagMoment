@@ -1,47 +1,28 @@
 const video = document.getElementById("arVideo");
 
-/* --- Hybrid State --- */
-const STATE = {
-  ACTIVE: "active",
-  LOST: "lost"
-};
-
-let currentState = STATE.LOST;
-
-/* --- Init MindAR --- */
-const mindar = new window.MINDAR.IMAGE.MindARController({
+/* Init MindAR (GLOBAL API exists here) */
+const mindar = new window.MINDAR.IMAGE.MindARThree({
   container: document.body,
   imageTargetSrc: "assets/target.mind"
 });
 
+const { renderer, scene, camera } = mindar;
+
 (async () => {
   await mindar.start();
-
-  /* When frame is found */
-  mindar.on("targetFound", () => {
-    if (currentState === STATE.ACTIVE) return;
-    currentState = STATE.ACTIVE;
-
-    // Force playback (mobile safe)
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        document.body.addEventListener(
-          "click",
-          () => video.play(),
-          { once: true }
-        );
-      });
-    }
-
-    video.classList.add("playing");
+  renderer.setAnimationLoop(() => {
+    renderer.render(scene, camera);
   });
 
-  /* When frame is lost */
-  mindar.on("targetLost", () => {
-    currentState = STATE.LOST;
+  mindar.addEventListener("targetFound", () => {
+    video.style.opacity = "1";
+    video.play().catch(() => {
+      document.body.addEventListener("click", () => video.play(), { once: true });
+    });
+  });
 
-    video.classList.remove("playing");
+  mindar.addEventListener("targetLost", () => {
+    video.style.opacity = "0";
     video.pause();
   });
 })();
