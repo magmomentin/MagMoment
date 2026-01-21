@@ -1,15 +1,19 @@
 const start = document.getElementById("start");
+const status = document.getElementById("status");
 const video = document.getElementById("video");
 
 start.addEventListener("click", async () => {
   try {
-    /* 1️⃣ Unlock camera (mobile requirement) */
+    status.innerText = "STATUS: Requesting camera";
+
+    // 1️⃣ Camera permission
     await navigator.mediaDevices.getUserMedia({ video: true });
 
-    /* 2️⃣ Unlock video playback ONCE */
-    await video.play(); // never pause later
+    // 2️⃣ Unlock video playback ONCE
+    await video.play();
+    status.innerText = "STATUS: Video unlocked";
 
-    /* 3️⃣ Init MindAR */
+    // 3️⃣ Init MindAR
     const mindar = new window.MINDAR.IMAGE.MindARThree({
       container: document.body,
       imageTargetSrc: "assets/target.mind"
@@ -17,15 +21,19 @@ start.addEventListener("click", async () => {
 
     const { renderer, scene, camera } = mindar;
 
-    /* 4️⃣ Create anchor for target index 0 */
+    // Ensure renderer fills screen
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // 4️⃣ Anchor
     const anchor = mindar.addAnchor(0);
 
-    /* 5️⃣ Video texture */
+    // 5️⃣ Video texture
     const texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
 
-    /* 6️⃣ Plane locked inside the frame */
+    // 6️⃣ Plane locked to frame
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(1, 1.4), // adjust to your frame ratio
       new THREE.MeshBasicMaterial({
@@ -38,26 +46,28 @@ start.addEventListener("click", async () => {
     plane.visible = false;
     anchor.group.add(plane);
 
-    /* 7️⃣ Target visibility logic */
+    // 7️⃣ Tracking callbacks
     anchor.onTargetFound = () => {
+      status.innerText = "STATUS: TARGET FOUND – VIDEO PLAYING";
       plane.visible = true;
     };
 
     anchor.onTargetLost = () => {
+      status.innerText = "STATUS: TARGET LOST";
       plane.visible = false;
     };
 
-    /* 8️⃣ Start AR */
+    // 8️⃣ Start AR
     await mindar.start();
 
     renderer.setAnimationLoop(() => {
-      texture.needsUpdate = true; // required for Safari
+      texture.needsUpdate = true; // REQUIRED for mobile
       renderer.render(scene, camera);
     });
 
-    start.remove(); // remove UI
+    start.remove();
   } catch (err) {
     console.error(err);
-    start.innerText = "Camera / video permission denied";
+    status.innerText = "STATUS: Permission denied";
   }
 }, { once: true });
