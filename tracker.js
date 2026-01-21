@@ -1,25 +1,36 @@
-const start  = document.getElementById("start");
-const status = document.getElementById("status");
-const video  = document.getElementById("video");
+const start   = document.getElementById("start");
+const status  = document.getElementById("status");
+const video   = document.getElementById("video");
 
-/* ---------- CONFIG (easy tuning) ---------- */
-const FRAME_ASPECT = 2 / 3;    // A5 portrait
-const FRAME_HEIGHT = 1.0;      // world units
-const FADE_SPEED   = 0.08;     // fade smoothness
-/* ------------------------------------------ */
+const fbWrap  = document.getElementById("fallback");
+const fbVideo = document.getElementById("fallbackVideo");
+
+/* ---------- CONFIG ---------- */
+const FRAME_ASPECT = 2 / 3;
+const FRAME_HEIGHT = 1.0;
+const FADE_SPEED   = 0.08;
+const FAIL_TIMEOUT = 2000; // ms
+/* ---------------------------- */
+
+let stage3OK = false;
+let targetVisible = false;
 
 start.addEventListener("click", async () => {
   try {
     status.textContent = "STATUS: Requesting camera";
 
-    /* 1️⃣ Camera permission */
+    // Camera permission
     await navigator.mediaDevices.getUserMedia({ video: true });
 
-    /* 2️⃣ Unlock video playback ONCE */
+    // Unlock video
     await video.play();
     status.textContent = "STATUS: Video unlocked";
 
-    /* 3️⃣ Init MindAR */
+    // Prepare fallback video (same source)
+    fbVideo.src = video.currentSrc || video.src;
+    fbVideo.play().catch(()=>{});
+
+    // Init MindAR
     const mindar = new window.MINDAR.IMAGE.MindARThree({
       container: document.body,
       imageTargetSrc: "assets/target.mind"
@@ -27,7 +38,7 @@ start.addEventListener("click", async () => {
 
     const { renderer, scene, camera } = mindar;
 
-    /* Fullscreen resize */
+    // Fullscreen resize
     const resize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
@@ -38,34 +49,31 @@ start.addEventListener("click", async () => {
     resize();
     window.addEventListener("resize", resize);
 
-    /* 4️⃣ Anchor */
+    // Anchor
     const anchor = mindar.addAnchor(0);
 
-    /* 5️⃣ Video texture */
+    // Video texture
     const texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
 
-    /* --- COVER BEHAVIOR (no black bars) --- */
+    // Cover logic (no black bars)
     const applyCover = () => {
-      const videoAspect = video.videoWidth / video.videoHeight || (9 / 16);
-
-      if (videoAspect > FRAME_ASPECT) {
-        const scale = FRAME_ASPECT / videoAspect;
-        texture.repeat.set(scale, 1);
-        texture.offset.set((1 - scale) / 2, 0);
+      const vAspect = video.videoWidth / video.videoHeight || (9/16);
+      if (vAspect > FRAME_ASPECT) {
+        const s = FRAME_ASPECT / vAspect;
+        texture.repeat.set(s, 1);
+        texture.offset.set((1 - s) / 2, 0);
       } else {
-        const scale = videoAspect / FRAME_ASPECT;
-        texture.repeat.set(1, scale);
-        texture.offset.set(0, (1 - scale) / 2);
+        const s = vAspect / FRAME_ASPECT;
+        texture.repeat.set(1, s);
+        texture.offset.set(0, (1 - s) / 2);
       }
     };
-
     if (video.readyState >= 2) applyCover();
     else video.onloadedmetadata = applyCover;
-    /* ------------------------------------- */
 
-    /* 6️⃣ Plane (frame-locked) */
+    // Plane
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(FRAME_HEIGHT * FRAME_ASPECT, FRAME_HEIGHT),
       new THREE.MeshBasicMaterial({
@@ -76,33 +84,49 @@ start.addEventListener("click", async () => {
         depthTest: false
       })
     );
-
     plane.position.z = 0.01;
     anchor.group.add(plane);
-
-    let targetVisible = false;
 
     anchor.onTargetFound = () => {
       status.textContent = "STATUS: TARGET FOUND";
       targetVisible = true;
     };
-
     anchor.onTargetLost = () => {
       status.textContent = "STATUS: TARGET LOST";
       targetVisible = false;
     };
 
-    /* 7️⃣ Start AR */
     await mindar.start();
+
+    /* ---- Stage-3 health check ---- */
+    const t0 = video.currentTime;
+    setTimeout(() => {
+      if (video.currentTime > t0 + 0.05) {
+        stage3OK = true;
+        status.textContent = "STATUS: STAGE-3 ACTIVE";
+      } else {
+        activateFallback();
+      }
+    }, FAIL_TIMEOUT);
+
+    function activateFallback() {
+      if (stage3OK) return;
+      status.textContent = "STATUS: FALLBACK MODE";
+      fbWrap.style.display = "flex";
+      fbVideo.style.opacity = 1;
+    }
 
     renderer.setAnimationLoop(() => {
       texture.needsUpdate = true;
 
-      /* Smooth fade logic */
-      if (targetVisible) {
-        plane.material.opacity = Math.min(1, plane.material.opacity + FADE_SPEED);
+      if (stage3OK) {
+        // Stage-3 fade
+        const targetOpacity = targetVisible ? 1 : 0;
+        plane.material.opacity +=
+          (targetOpacity - plane.material.opacity) * FADE_SPEED;
       } else {
-        plane.material.opacity = Math.max(0, plane.material.opacity - FADE_SPEED);
+        // Stage-2 fade
+        fbVideo.style.opacity = targetVisible ? 1 : 0;
       }
 
       renderer.render(scene, camera);
