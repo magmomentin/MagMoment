@@ -2,17 +2,12 @@ const video = document.getElementById("arVideo");
 const container = document.getElementById("ar-container");
 
 /* --------------------
-   STATE MACHINE
+   STATE
 -------------------- */
-const STATE = {
-  IDLE: "IDLE",
-  ACTIVE: "ACTIVE",
-  LOST: "LOST"
-};
+let confirmed = false;
+let detectStartTime = null;
 
-let currentState = STATE.IDLE;
-let lastSeenTime = 0;
-const LOST_TIMEOUT = 800;
+const CONFIRM_TIME = 500; // ms target must stay visible
 
 /* --------------------
    MINDAR INIT
@@ -24,55 +19,41 @@ const mindar = new window.MINDAR.IMAGE.MindARImage({
 });
 
 const { renderer, scene, camera } = mindar;
-
 const anchor = mindar.addAnchor(0);
 
 /* --------------------
-   ANCHOR EVENTS
+   FORCE SAFE START
+-------------------- */
+video.pause();
+video.currentTime = 0;
+video.style.display = "none";
+
+/* --------------------
+   TARGET FOUND
 -------------------- */
 anchor.onTargetFound = () => {
-  lastSeenTime = Date.now();
-  setState(STATE.ACTIVE);
-};
+  if (!detectStartTime) {
+    detectStartTime = Date.now();
+    return;
+  }
 
-anchor.onTargetLost = () => {
-  lastSeenTime = Date.now();
-  setState(STATE.LOST);
-};
-
-/* --------------------
-   STATE HANDLER
--------------------- */
-function setState(newState) {
-  if (currentState === newState) return;
-  currentState = newState;
-  updateState();
-}
-
-function updateState() {
-  if (currentState === STATE.ACTIVE) {
+  // confirm stable detection
+  if (!confirmed && Date.now() - detectStartTime > CONFIRM_TIME) {
+    confirmed = true;
     video.style.display = "block";
-    if (video.paused) video.play();
+    video.play();
   }
-
-  if (currentState === STATE.LOST) {
-    video.pause();
-    video.style.display = "none";
-  }
-}
+};
 
 /* --------------------
-   LOST CONFIRM LOOP
+   TARGET LOST
 -------------------- */
-function checkLost() {
-  if (
-    currentState === STATE.ACTIVE &&
-    Date.now() - lastSeenTime > LOST_TIMEOUT
-  ) {
-    setState(STATE.LOST);
-  }
-  requestAnimationFrame(checkLost);
-}
+anchor.onTargetLost = () => {
+  detectStartTime = null;
+  confirmed = false;
+  video.pause();
+  video.style.display = "none";
+};
 
 /* --------------------
    START
@@ -82,5 +63,4 @@ function checkLost() {
   renderer.setAnimationLoop(() => {
     renderer.render(scene, camera);
   });
-  checkLost();
 })();
