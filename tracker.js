@@ -1,12 +1,8 @@
-import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
-
 // --------------------
-// CONFIG (LOCK THESE)
+// CONFIG (CHANGE ONLY THESE IF NEEDED)
 // --------------------
-
-// Video size as % of target (MULTI-SIZE)
-const VIDEO_WIDTH_RATIO  = 0.8; // 80%
-const VIDEO_HEIGHT_RATIO = 0.8; // 80%
+const VIDEO_WIDTH_RATIO  = 0.8; // 80% of target width
+const VIDEO_HEIGHT_RATIO = 0.8; // 80% of target height
 
 // --------------------
 // MINDAR SETUP
@@ -58,10 +54,10 @@ scene.add(anchor.group);
 // TARGET FOUND
 // --------------------
 anchor.onTargetFound = async () => {
-  const targetW = anchor.group.scale.x; // real-world width
-  const targetH = anchor.group.scale.y; // real-world height
+  const targetW = anchor.group.scale.x;
+  const targetH = anchor.group.scale.y;
 
-  // Base scale from ratios (MULTI-SIZE)
+  // Base scale (MULTI-SIZE)
   let scaleW = targetW * VIDEO_WIDTH_RATIO;
   let scaleH = targetH * VIDEO_HEIGHT_RATIO;
 
@@ -105,7 +101,7 @@ anchor.onTargetLost = () => {
 // --------------------
 // START
 // --------------------
-await mindarThree.start();
+mindarThree.start();
 
 renderer.setAnimationLoop(() => {
   renderer.render(scene, camera);
