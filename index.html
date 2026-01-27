@@ -4,17 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MagMoment AR</title>
+
+  <!-- MindAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js"></script>
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Camera -->
-  <video id="camera" autoplay playsinline muted></video>
+  <!-- Camera container -->
+  <div id="ar-container"></div>
 
-  <!-- AR Layer -->
-  <div id="ar-layer">
-    <video id="ar-video" src="assets/demo.mp4" autoplay loop muted playsinline></video>
-  </div>
+  <!-- AR Video (HIDDEN BY DEFAULT, NO AUTOPLAY) -->
+  <video
+    id="arVideo"
+    src="assets/demo.mp4"
+    muted
+    loop
+    playsinline
+    style="display:none"
+  ></video>
 
   <script src="tracker.js"></script>
 </body>
