@@ -1,58 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MagMoment AR</title>
-
-  <!-- THREE.JS (GLOBAL) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.140.2/build/three.min.js"></script>
-
-  <!-- MINDAR (THREE VERSION, GLOBAL) -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
-
-  <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: transparent;
-      font-family: system-ui, sans-serif;
-    }
-
-    canvas {
-      position: fixed !important;
-      inset: 0;
-      width: 100vw !important;
-      height: 100vh !important;
-      object-fit: cover;
-    }
-
-    #start {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      font-size: 18px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <button id="start">Tap to start</button>
+  <!-- Camera -->
+  <video id="camera" autoplay playsinline muted></video>
 
-  <!-- Hidden video source -->
-  <video
-    id="video"
-    muted
-    playsinline
-    loop
-    preload="auto"
-    style="display:none"
-  >
-    <source src="assets/demo.mp4" type="video/mp4">
-  </video>
+  <!-- AR Layer -->
+  <div id="ar-layer">
+    <video id="ar-video" src="assets/demo.mp4" autoplay loop muted playsinline></video>
+  </div>
 
   <script src="tracker.js"></script>
 </body>
