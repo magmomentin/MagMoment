@@ -1,8 +1,8 @@
 // --------------------
-// CONFIG (CHANGE ONLY THESE IF NEEDED)
+// CONFIG
 // --------------------
-const VIDEO_WIDTH_RATIO  = 0.8; // 80% of target width
-const VIDEO_HEIGHT_RATIO = 0.8; // 80% of target height
+const VIDEO_WIDTH_RATIO  = 0.8;
+const VIDEO_HEIGHT_RATIO = 0.8;
 
 // --------------------
 // MINDAR SETUP
@@ -32,7 +32,7 @@ videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 
 // --------------------
-// UNIT PLANE (DO NOT CHANGE)
+// UNIT PLANE
 // --------------------
 const geometry = new THREE.PlaneGeometry(1, 1);
 const material = new THREE.MeshBasicMaterial({
@@ -57,11 +57,9 @@ anchor.onTargetFound = async () => {
   const targetW = anchor.group.scale.x;
   const targetH = anchor.group.scale.y;
 
-  // Base scale (MULTI-SIZE)
   let scaleW = targetW * VIDEO_WIDTH_RATIO;
   let scaleH = targetH * VIDEO_HEIGHT_RATIO;
 
-  // Aspect-safe fit
   const videoAspect =
     video.videoWidth && video.videoHeight
       ? video.videoWidth / video.videoHeight
@@ -75,7 +73,6 @@ anchor.onTargetFound = async () => {
     scaleW = scaleH * videoAspect;
   }
 
-  // Apply scale + AUTO-CENTER
   plane.scale.set(scaleW, scaleH, 1);
   plane.position.set(0, 0, 0);
 
@@ -85,7 +82,7 @@ anchor.onTargetFound = async () => {
     try {
       await video.play();
     } catch (e) {
-      console.warn("Video play blocked:", e);
+      console.warn("Autoplay blocked:", e);
     }
   }
 };
