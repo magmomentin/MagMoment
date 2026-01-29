@@ -1,57 +1,63 @@
-const startButton = document.getElementById("startButton");
-const muteBtn = document.getElementById("mute-btn");
-const overlay = document.getElementById("overlay");
-const guide = document.getElementById("guide-box");
+const start = document.getElementById("start");
 const video = document.getElementById("video");
 
-// Audio Toggle Logic
-muteBtn.onclick = () => {
-  video.muted = !video.muted;
-  muteBtn.innerText = video.muted ? "🔇" : "🔊";
-};
+const SCALE_RATIO = 1;
 
-startButton.onclick = async () => {
-  overlay.style.display = "none";
-  guide.style.display = "block";
-  muteBtn.style.display = "block";
+start.onclick = async () => {
+  start.remove();
+  await video.play();
 
-  const mindarThree = new window.MINDAR.IMAGE.MindARThree({
+  const mindar = new window.MINDAR.IMAGE.MindARThree({
     container: document.body,
-    imageTargetSrc: "assets/target.mind",
-    uiLoading: "no",
-    uiScanning: "no"
+    imageTargetSrc: "assets/targets.mind"
   });
 
-  const { renderer, scene, camera } = mindarThree;
+  const { renderer, scene, camera } = mindar;
+  scene.add(mindar.cameraGroup);
+
+  const anchor = mindar.addAnchor(0);
 
   const texture = new THREE.VideoTexture(video);
-  texture.encoding = THREE.sRGBEncoding;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
 
-  // 3:4 Aspect Ratio (Width 0.75, Height 1.0)
-  const geometry = new THREE.PlaneGeometry(0.75, 1);
-  const material = new THREE.MeshBasicMaterial({ map: texture });
-  const plane = new THREE.Mesh(geometry, material);
-  plane.position.z = 0.01; // Avoid Z-fighting
+  const FRAME_HEIGHT = 1;
+  const FRAME_ASPECT = 2 / 3;
 
-  const anchor = mindarThree.addAnchor(0);
+  const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(
+      FRAME_HEIGHT * FRAME_ASPECT,
+      FRAME_HEIGHT
+    ),
+    new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.DoubleSide,
+      transparent: true
+    })
+  );
+
+  plane.position.set(0, 0, 0);
+  plane.visible = false;
   anchor.group.add(plane);
 
   anchor.onTargetFound = () => {
-    guide.style.display = "none";
-    video.play().catch(e => console.error("Play error:", e));
+    const targetH = anchor.group.scale.y;
+
+    const scaleH = targetH * SCALE_RATIO;
+    const scaleW = scaleH * FRAME_ASPECT;
+
+    plane.scale.set(scaleW, scaleH, 1);
+    plane.visible = true;
   };
 
   anchor.onTargetLost = () => {
-    guide.style.display = "block";
-    video.pause();
+    plane.visible = false;
   };
 
-  try {
-    await mindarThree.start();
-    renderer.setAnimationLoop(() => {
-      renderer.render(scene, camera);
-    });
-  } catch (error) {
-    console.error("Camera/HTTPS error:", error);
-  }
+  await mindar.start();
+
+  renderer.setAnimationLoop(() => {
+    texture.needsUpdate = true;
+    renderer.render(scene, camera);
+  });
 };

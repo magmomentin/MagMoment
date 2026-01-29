@@ -3,52 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>MagMoment AR - 3:4 with Audio</title>
+  <title>MagMoment AR</title>
 
+  <!-- THREE.JS (GLOBAL) -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.2/build/three.min.js"></script>
+
+  <!-- MINDAR (THREE VERSION, GLOBAL) -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
 
   <style>
-    body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
-    
-    #overlay {
-      position: fixed; inset: 0; z-index: 100;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.85); color: white;
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: system-ui, sans-serif;
     }
 
-    /* Mute Toggle Button */
-    #mute-btn {
-      position: fixed; bottom: 20px; right: 20px; z-index: 200;
-      width: 50px; height: 50px; border-radius: 50%;
-      background: rgba(0,0,0,0.6); color: white; border: 2px solid white;
-      display: none; cursor: pointer; font-size: 20px;
+    canvas {
+      position: fixed !important;
+      inset: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      object-fit: cover;
     }
 
-    button#startButton {
-      padding: 15px 35px; font-size: 1.1rem; cursor: pointer;
-      background: #007AFF; color: white; border: none; border-radius: 30px;
-    }
-
-    #guide-box {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 200px; height: 266px; /* 3:4 Guide */
-      border: 2px dashed rgba(255,255,255,0.5); border-radius: 10px;
-      display: none; pointer-events: none; z-index: 50;
+    #start {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
 
-  <div id="overlay">
-    <h2>MagMoment AR</h2>
-    <button id="startButton">Tap to Start</button>
-  </div>
+  <button id="start">Tap to start</button>
 
-  <button id="mute-btn">🔇</button>
-  <div id="guide-box"></div>
-
-  <video id="video" muted playsinline loop crossorigin="anonymous" style="display:none">
+  <!-- Hidden video source -->
+  <video
+    id="video"
+    muted
+    playsinline
+    loop
+    preload="auto"
+    style="display:none"
+  >
     <source src="assets/demo.mp4" type="video/mp4">
   </video>
 
