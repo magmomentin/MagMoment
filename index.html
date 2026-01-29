@@ -4,52 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>MagMoment AR</title>
-
-  <!-- THREE.JS (GLOBAL) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.140.2/build/three.min.js"></script>
-
-  <!-- MINDAR (THREE VERSION, GLOBAL) -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
-
-  <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: transparent;
-      font-family: system-ui, sans-serif;
-    }
-
-    canvas {
-      position: fixed !important;
-      inset: 0;
-      width: 100vw !important;
-      height: 100vh !important;
-      object-fit: cover;
-    }
-
-    #start {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      font-size: 18px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
 </head>
 <body>
+  <div id="ui-container">
+    <button id="start-btn">TAP TO START</button>
+    <div id="scanning-overlay" class="hidden">
+      <div class="scanner-line"></div>
+      <p>Scan the magazine cover</p>
+    </div>
+  </div>
 
-  <button id="start">Tap to start</button>
+  <video id="ar-video" muted playsinline loop preload="auto" style="display:none">
+    <source src="assets/demo.mp4" type="video/mp4">
+  </video>
 
-  <!-- Hidden video source -->
-  <video
-    id="video"
-    muted
-    playsinline
-    loop
-    preload="auto"
-    style="display:none"
-  >
+  <script src="tracker.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>MagMoment AR</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+</head>
+<body>
+  <div id="ui-container">
+    <button id="start-btn">TAP TO START</button>
+    <div id="scanning-overlay" class="hidden">
+      <div class="scanner-line"></div>
+      <p>Scan the magazine cover</p>
+    </div>
+  </div>
+
+  <video id="ar-video" muted playsinline loop preload="auto" style="display:none">
     <source src="assets/demo.mp4" type="video/mp4">
   </video>
 
