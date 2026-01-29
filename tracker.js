@@ -1,57 +1,89 @@
-const startBtn = document.getElementById("start-btn");
-const scanningOverlay = document.getElementById("scanning-overlay");
-const video = document.getElementById("ar-video");
-
-let isDetected = false;
+const startBtn = document.getElementById("start");
+const loadingOverlay = document.getElementById("loading-overlay");
+const scanOverlay = document.getElementById("scan-overlay");
+const muteBtn = document.getElementById("mute-toggle");
+const video = document.getElementById("video");
 
 startBtn.onclick = async () => {
-  startBtn.classList.add("hidden");
-  scanningOverlay.classList.remove("hidden");
+  // 1. Initial UI Transition
+  startBtn.style.display = "none";
+  loadingOverlay.style.display = "flex";
 
-  const mindarThree = new window.MINDAR.IMAGE.MindARThree({
-    container: document.body,
-    imageTargetSrc: "assets/targets.mind",
-    filterMinCF: 0.0001, // High stability
-    filterBeta: 0.001
-  });
+  try {
+    // 2. Load Video and Metadata
+    await new Promise((resolve, reject) => {
+      video.onloadedmetadata = () => resolve();
+      video.onerror = () => reject("Video load failed");
+      video.muted = true; // Required for initial autoplay
+      video.play();
+    });
 
-  const { renderer, scene, camera } = mindarThree;
+    const videoAspect = video.videoWidth / video.videoHeight;
 
-  // Modern texture setup
-  const texture = new THREE.VideoTexture(video);
-  texture.colorSpace = THREE.SRGBColorSpace; 
+    // 3. Initialize MindAR
+    const mindar = new window.MINDAR.IMAGE.MindARThree({
+      container: document.body,
+      imageTargetSrc: "assets/targets.mind"
+    });
 
-  // Plane setup: MindAR default width is 1. Adjust 1.5 to your video's height ratio.
-  const geometry = new THREE.PlaneGeometry(1, 1.5); 
-  const material = new THREE.MeshBasicMaterial({ 
-    map: texture, 
-    transparent: true, 
-    opacity: 0 
-  });
-  const plane = new THREE.Mesh(geometry, material);
+    const { renderer, scene, camera } = mindar;
+    scene.add(mindar.cameraGroup);
 
-  const anchor = mindarThree.addAnchor(0);
-  anchor.group.add(plane);
+    const anchor = mindar.addAnchor(0);
 
-  anchor.onTargetFound = () => {
-    isDetected = true;
-    video.play();
-    scanningOverlay.classList.add("hidden");
-  };
+    // 4. Setup 3D Plane with Dynamic Aspect Ratio
+    const texture = new THREE.VideoTexture(video);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
 
-  anchor.onTargetLost = () => {
-    isDetected = false;
-    video.pause();
-    scanningOverlay.classList.remove("hidden");
-  };
+    const planeHeight = 1;
+    const planeWidth = planeHeight * videoAspect;
 
-  await mindarThree.start();
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(planeWidth, planeHeight),
+      new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.DoubleSide,
+        transparent: true
+      })
+    );
 
-  renderer.setAnimationLoop(() => {
-    // Smooth opacity transition
-    const targetOpacity = isDetected ? 1 : 0;
-    material.opacity = THREE.MathUtils.lerp(material.opacity, targetOpacity, 0.1);
-    
-    renderer.render(scene, camera);
-  });
+    plane.visible = false;
+    anchor.group.add(plane);
+
+    // 5. Audio Toggle Logic
+    muteBtn.onclick = (e) => {
+      e.stopPropagation();
+      video.muted = !video.muted;
+      muteBtn.innerText = video.muted ? "🔇" : "🔊";
+    };
+
+    // 6. Anchor Events
+    anchor.onTargetFound = () => {
+      plane.visible = true;
+      scanOverlay.style.display = "none";
+      muteBtn.style.display = "block";
+    };
+
+    anchor.onTargetLost = () => {
+      plane.visible = false;
+      scanOverlay.style.display = "flex";
+      muteBtn.style.display = "none";
+    };
+
+    // 7. Start Engine
+    await mindar.start();
+    loadingOverlay.style.display = "none";
+    scanOverlay.style.display = "flex";
+
+    renderer.setAnimationLoop(() => {
+      texture.needsUpdate = true;
+      renderer.render(scene, camera);
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("AR Initialization Error: Ensure camera permissions are granted and assets exist.");
+    loadingOverlay.style.display = "none";
+  }
 };
